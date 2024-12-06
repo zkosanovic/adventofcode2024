@@ -1,10 +1,12 @@
+use std::collections::HashMap;
 use std::io;
 
 fn main() {
     let mut input = String::new();
 
     let mut left_numbers: Vec<i32> = vec![];
-    let mut right_numbers: Vec<i32> = vec![];
+
+    let mut occurences: HashMap<i32, i32> = HashMap::new();
 
     while let Ok(n) = io::stdin().read_line(&mut input) {
         if n == 0 {
@@ -18,7 +20,6 @@ fn main() {
             Some(s) => s.parse::<i32>().unwrap(),
             None => panic!("Bad input"),
         };
-
         left_numbers.push(l);
 
         let r = match splitted.next() {
@@ -26,22 +27,20 @@ fn main() {
             None => panic!("Bad input"),
         };
 
-        right_numbers.push(r);
+        let count = occurences.entry(r).or_insert(0);
+        *count += 1;
 
         input.clear();
     }
 
     left_numbers.sort();
-    right_numbers.sort();
-
-    if left_numbers.len() != right_numbers.len() {
-        panic!("Left and right numbers not the same length");
-    }
 
     let mut result: i32 = 0;
 
-    for (l, r) in left_numbers.iter().zip(right_numbers.iter()) {
-        result += (l - r).abs();
+    for l in left_numbers.iter() {
+        let count = occurences.get(l).unwrap_or(&0);
+
+        result += l * count;
     }
 
     println!("{}", result);
