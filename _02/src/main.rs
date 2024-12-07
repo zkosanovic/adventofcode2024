@@ -6,6 +6,89 @@ enum Direction {
     Decreasing,
 }
 
+fn is_safe(row: &[i32]) -> bool {
+    let first = row[0];
+    let second = row[1];
+
+    if first == second || (first - second).abs() > 3 {
+        return false;
+    }
+
+    let direction = if first < second {
+        Direction::Increasing
+    } else {
+        Direction::Decreasing
+    };
+
+    let mut previous = second;
+
+    for x in row.iter().skip(2) {
+        if (direction == Direction::Increasing && previous >= *x)
+            || (direction == Direction::Decreasing && previous <= *x)
+            || ((x - previous).abs() > 3)
+        {
+            return false;
+        }
+
+        previous = *x;
+    }
+
+    true
+}
+
+fn is_safe_without(row: &[i32], without: usize) -> bool {
+    let first: i32;
+    let second: i32;
+    let start: usize;
+
+    match without {
+        0 => {
+            first = row[1];
+            second = row[2];
+            start = 3;
+        }
+        1 => {
+            first = row[0];
+            second = row[2];
+            start = 3;
+        }
+        _ => {
+            first = row[0];
+            second = row[1];
+            start = 2;
+        }
+    }
+
+    if first == second || (first - second).abs() > 3 {
+        return false;
+    }
+
+    let direction = if first < second {
+        Direction::Increasing
+    } else {
+        Direction::Decreasing
+    };
+
+    let mut previous = second;
+
+    for (i, x) in row.iter().enumerate().skip(start) {
+        if i == without {
+            continue;
+        }
+
+        if (direction == Direction::Increasing && previous >= *x)
+            || (direction == Direction::Decreasing && previous <= *x)
+            || ((x - previous).abs() > 3)
+        {
+            return false;
+        }
+
+        previous = *x;
+    }
+
+    true
+}
+
 fn main() {
     let mut input = String::new();
 
@@ -20,45 +103,22 @@ fn main() {
         let line = input.clone();
         input.clear();
 
-        let mut row = line.split_whitespace().map(|x| x.parse::<i32>().unwrap());
+        let row: Vec<i32> = line
+            .split_whitespace()
+            .map(|x| x.parse::<i32>().unwrap())
+            .collect();
 
-        let first = match row.next() {
-            Some(x) => x,
-            None => continue,
-        };
-
-        let second = match row.next() {
-            Some(x) => x,
-            None => continue,
-        };
-
-        if first == second || (first - second).abs() > 3 {
+        if is_safe(&row) {
+            result += 1;
             continue;
         }
 
-        let direction = if first < second {
-            Direction::Increasing
-        } else {
-            Direction::Decreasing
-        };
-
-        let mut previous = second;
-        let mut ok = true;
-
-        for x in row {
-            if (direction == Direction::Increasing && previous >= x) || (direction == Direction::Decreasing && previous <= x) || ((x - previous).abs() > 3) {
-                ok = false;
+        for i in 0..row.len() {
+            if is_safe_without(&row, i) {
+                result += 1;
                 break;
             }
-
-            previous = x;
         }
-
-        if !ok {
-            continue;
-        }
-
-        result += 1;
     }
 
     println!("{}", result);
