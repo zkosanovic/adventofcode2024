@@ -55,7 +55,7 @@ fn main() {
             break;
         }
 
-        let pages: Vec<usize> = input
+        let mut pages: Vec<usize> = input
             .trim()
             .split(',')
             .map(|x| x.parse::<usize>().unwrap())
@@ -96,7 +96,18 @@ fn main() {
             }
         }
 
-        if ok {
+        if !ok {
+            pages.sort_by(|x, y| {
+                if let Some(x) = before.get(x) {
+                    if x.contains(y) {
+                        return std::cmp::Ordering::Greater;
+                    } else {
+                        return std::cmp::Ordering::Less;
+                    }
+                }
+                std::cmp::Ordering::Equal
+            });
+
             result += pages[pages.len() / 2];
         }
 
