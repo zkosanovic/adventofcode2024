@@ -9,8 +9,12 @@ fn backtrack(current: u64, goal: u64, numbers: &[u64]) -> bool {
         return false;
     }
 
+    let mut new_current = current.to_string();
+    new_current.push_str(&numbers[0].to_string());
+
     return backtrack(current * numbers[0], goal, &numbers[1..])
-        || backtrack(current + numbers[0], goal, &numbers[1..]);
+        || backtrack(current + numbers[0], goal, &numbers[1..])
+        || backtrack(new_current.parse::<u64>().unwrap(), goal, &numbers[1..]);
 }
 
 fn main() {
